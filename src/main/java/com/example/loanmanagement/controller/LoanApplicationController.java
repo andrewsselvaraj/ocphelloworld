@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -21,13 +20,17 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
-@RequestMapping("/api/loan-applications")
 public class LoanApplicationController {
 
     private final AtomicLong nextId = new AtomicLong();
     private final ConcurrentSkipListMap<Long, LoanApplication> applications = new ConcurrentSkipListMap<>();
 
-    @PostMapping
+    @GetMapping("/")
+    public String home() {
+        return "Loan Management System is running. Loan applications API: /api/loan-applications";
+    }
+
+    @PostMapping("/api/loan-applications")
     public ResponseEntity<LoanApplication> submit(@Valid @RequestBody CreateLoanApplicationRequest request) {
         long id = nextId.incrementAndGet();
         LoanApplication application = new LoanApplication(
@@ -43,12 +46,12 @@ public class LoanApplicationController {
         return ResponseEntity.created(URI.create("/api/loan-applications/" + id)).body(application);
     }
 
-    @GetMapping
+    @GetMapping("/api/loan-applications")
     public List<LoanApplication> getAll() {
         return List.copyOf(applications.values());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/loan-applications/{id}")
     public ResponseEntity<LoanApplication> getById(@PathVariable long id) {
         return Optional.ofNullable(applications.get(id))
                 .map(ResponseEntity::ok)

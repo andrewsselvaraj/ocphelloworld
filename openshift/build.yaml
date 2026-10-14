@@ -1,0 +1,33 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: loan-management-system
+  labels:
+    app: loan-management-system
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: loan-management-system
+  labels:
+    app: loan-management-system
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/andrewsselvaraj/ocphelloworld.git
+      ref: main
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: loan-management-system:latest
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  triggers:
+    - type: ConfigChange

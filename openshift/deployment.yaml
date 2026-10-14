@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-management-system
+  labels:
+    app: loan-management-system
+    app.kubernetes.io/part-of: loan-management-system
+    app.openshift.io/runtime: spring-boot
+  annotations:
+    # Roll out a new pod whenever the build pushes a new image to the ImageStream
+    image.openshift.io/triggers: >-
+      [{"from":{"kind":"ImageStreamTag","name":"loan-management-system:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"app\")].image"}]
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loan-management-system
+  template:
+    metadata:
+      labels:
+        app: loan-management-system
+    spec:
+      containers:
+        - name: app
+          image: loan-management-system:latest
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: JAVA_OPTS_APPEND
+              value: "-XX:MaxRAMPercentage=75"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loan-management-system
+  labels:
+    app: loan-management-system
+spec:
+  selector:
+    app: loan-management-system
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: loan-management-system
+  labels:
+    app: loan-management-system
+spec:
+  to:
+    kind: Service
+    name: loan-management-system
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
