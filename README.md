@@ -29,7 +29,7 @@ The image is built inside the cluster from this GitHub repo with the multi-stage
    ```text
    oc apply -f openshift/build.yaml
    oc logs -f bc/loan-management-system
-   oc apply -f openshift/deployment.yaml
+   oc apply -f openshift/deployment.yaml -f openshift/service.yaml -f openshift/route.yaml
    oc rollout status deploy/loan-management-system
    ```
 
