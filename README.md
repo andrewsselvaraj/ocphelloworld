@@ -7,8 +7,10 @@ A Spring Boot 3 microservice for submitting and retrieving loan applications.
 Requires Java 17 and Maven:
 
 ```text
-mvn spring-boot:run
+mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
+
+The `local` profile allows CORS requests from the Angular dev server at `http://localhost:4200`. Without it, set `app.cors.allowed-origins` yourself, or the service fails at startup. On OpenShift the value comes from `openshift/configmap.yaml`.
 
 ## API
 
@@ -29,7 +31,7 @@ The image is built inside the cluster from this GitHub repo with the multi-stage
    ```text
    oc apply -f openshift/build.yaml
    oc logs -f bc/loan-management-system
-   oc apply -f openshift/deployment.yaml -f openshift/service.yaml -f openshift/route.yaml
+   oc apply -f openshift/configmap.yaml -f openshift/deployment.yaml -f openshift/service.yaml -f openshift/route.yaml
    oc rollout status deploy/loan-management-system
    ```
 

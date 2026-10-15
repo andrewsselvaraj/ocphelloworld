@@ -11,9 +11,8 @@ public class CorsConfig implements WebMvcConfigurer {
 
     private final String[] allowedOrigins;
 
-    public CorsConfig(@Value("${app.cors.allowed-origins:"
-            + "https://loan-management-frontend-andrew-india-dev.apps.rm1.0a51.p1.openshiftapps.com,"
-            + "http://localhost:4200}") String[] allowedOrigins) {
+    /** No default on purpose: startup fails if app.cors.allowed-origins is not set for the environment. */
+    public CorsConfig(@Value("${app.cors.allowed-origins}") String[] allowedOrigins) {
         this.allowedOrigins = allowedOrigins;
     }
 

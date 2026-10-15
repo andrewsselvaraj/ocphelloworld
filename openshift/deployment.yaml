@@ -29,6 +29,9 @@ spec:
           env:
             - name: JAVA_OPTS_APPEND
               value: "-XX:MaxRAMPercentage=75"
+          envFrom:
+            - configMapRef:
+                name: loan-management-config
           resources:
             requests:
               cpu: 100m
