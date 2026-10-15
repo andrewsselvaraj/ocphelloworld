@@ -7,10 +7,10 @@ A Spring Boot 3 microservice for submitting and retrieving loan applications.
 Requires Java 17 and Maven:
 
 ```text
-mvn spring-boot:run -Dspring-boot.run.profiles=local
+mvn spring-boot:run
 ```
 
-The `local` profile allows CORS requests from the Angular dev server at `http://localhost:4200`. Without it, set `app.cors.allowed-origins` yourself, or the service fails at startup. On OpenShift the value comes from `openshift/configmap.yaml`.
+The service has no CORS configuration: browsers reach it only through a same-origin proxy (the Angular dev server locally, the frontend's `/api` Route on OpenShift).
 
 ## API
 
@@ -31,15 +31,15 @@ The image is built inside the cluster from this GitHub repo with the multi-stage
    ```text
    oc apply -f openshift/build.yaml
    oc logs -f bc/loan-management-system
-   oc apply -f openshift/configmap.yaml -f openshift/deployment.yaml -f openshift/service.yaml -f openshift/route.yaml
+   oc apply -f openshift/configmap.yaml -f openshift/deployment.yaml -f openshift/service.yaml
    oc rollout status deploy/loan-management-system
    ```
 
-3. Get the public URL:
+The service has no Route of its own. The frontend project (`ocpfrontendbasic`) exposes it at `/api` on the frontend's host, with rate limiting. To call it directly, port-forward it:
 
-   ```text
-   oc get route loan-management-system -o jsonpath='https://{.spec.host}{"\n"}'
-   ```
+```text
+oc port-forward svc/loan-management-system 8080:8080
+```
 
 To rebuild after pushing new commits, run `oc start-build loan-management-system --follow`. The Deployment rolls out the new image automatically. To build from your local working copy instead of GitHub, run `oc start-build loan-management-system --from-dir=. --follow`.
 

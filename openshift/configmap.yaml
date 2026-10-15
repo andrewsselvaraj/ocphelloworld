@@ -5,6 +5,6 @@ metadata:
   labels:
     app: loan-management-system
     app.kubernetes.io/part-of: loan-management-system
-data:
-  # Bound to app.cors.allowed-origins; comma-separate multiple origins
-  APP_CORS_ALLOWEDORIGINS: "https://loan-management-frontend-andrew-india-dev.apps.rm1.0a51.p1.openshiftapps.com"
+# Per-environment settings, injected into the app container as environment
+# variables (envFrom in deployment.yaml). Spring Boot maps e.g. APP_FOO_BAR to app.foo-bar.
+data: {}
